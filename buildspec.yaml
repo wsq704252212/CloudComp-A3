@@ -1,0 +1,25 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - echo "Installing index-photos dependencies..."
+      - cd index-photos
+      - pip install -r requirements.txt -t .
+      - echo "Installing search-photos dependencies..."
+      - cd ../search-photos
+      - pip install -r requirements.txt -t .
+      - cd ..
+  build:
+    commands:
+      - echo "Zipping index-photos package..."
+      - zip -r9 ./index-photos.zip ./index-photos
+      - echo "Zipping search-photos package..."
+      - zip -r9 ./search-photos.zip ./search-photos
+  post_build:
+    commands:
+      - echo "Updating lambda Function..."
+      - aws lambda update-function-code --function-name index-photos --zip-file fileb://index-photos.zip
+      - aws lambda update-function-code --function-name search-photos --zip-file fileb://search-photos.zip
+      - echo "DONE!!"

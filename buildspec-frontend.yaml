@@ -1,0 +1,11 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+       - echo "frontend"
+       # - zip -r9 ./frontend.zip ./frontend
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'frontend'
