@@ -57,6 +57,8 @@ def getCustomLabels(bucketName, Objkey):
     # Initialize the S3 client
     s3_client = boto3.client('s3')
     response = s3_client.head_object(Bucket=bucketName, Key=Objkey)
-    labels = response.get('x-amz-meta-customLabels', [])
+    header = response['ResponseMetadata']['HTTPHeaders']
+    labelsStr = header.get('x-amz-meta-customlabels', [])
+    labels = labelsStr.split(",")
     print(labels)
     return labels
