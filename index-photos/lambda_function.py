@@ -17,11 +17,12 @@ def lambda_handler(event, context):
             "createdTimestamp": record["eventTime"],
             "labels": labels
         }
-        jsonObj = json.dump(esObj)
+        jsonObj = json.dumps(esObj)
+        print(jsonObj)
         
-        url = "https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com"
-        response = requests.put(url, auth=esaccount, data=jsonObj, headers={'Content-Type': 'application/json'})
-        print(response)
+        url = "https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com/photos/_doc"
+        response = requests.post(url, auth=esaccount, data=jsonObj, headers={'Content-Type': 'application/json'})
+        print(json.loads(response.text))
 
     return {
         'statusCode': 200,
@@ -44,18 +45,18 @@ def getDetectLabels(bucketName, objKey):
     )
 
     # Print the detected labels
-    print('Detected labels:')
+    #print('Detected labels:')
+    labels = []
     for label in response['Labels']:
-        print(f'{label["Name"]} - {label["Confidence"]:.2f}%') 
+    #    print(f'{label["Name"]} - {label["Confidence"]:.2f}%') 
+        labels.append(label["Name"])
 
-    return response['Labels']
+    return labels
 
 def getCustomLabels(bucketName, Objkey):
     # Initialize the S3 client
     s3_client = boto3.client('s3')
     response = s3_client.head_object(Bucket=bucketName, Key=Objkey)
-    labels = response['x-amz-meta-customLabels']
+    labels = response.get('x-amz-meta-customLabels', [])
     print(labels)
-    if len(labels) == 0: 
-        return []
     return labels

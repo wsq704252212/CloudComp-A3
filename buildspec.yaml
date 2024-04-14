@@ -14,9 +14,13 @@ phases:
   build:
     commands:
       - echo "Zipping index-photos package..."
-      - zip -r9 ./index-photos.zip ./index-photos
+      - cd index-photos
+      - zip -r9 ../index-photos.zip .
+      - cd ..
       - echo "Zipping search-photos package..."
-      - zip -r9 ./search-photos.zip ./search-photos
+      - cd search-photos
+      - zip -r9 ../search-photos.zip .
+      - cd ..
   post_build:
     commands:
       - echo "Updating lambda Function..."
