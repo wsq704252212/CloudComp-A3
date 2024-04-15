@@ -1,6 +1,8 @@
 import json
 import boto3
 import requests
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
 
 def lambda_handler(event, context):
     client = boto3.client('lex-runtime')
@@ -21,33 +23,50 @@ def lambda_handler(event, context):
     keywordTwo = response['slots']['KeywordTwo']
     keywords = [keywordOne] if keywordTwo is None else [keywordOne, keywordTwo]
 
-    print(keywords)
+    # esaccount = ('ycc', 'YccWsq2024!')
 
+    # query = {
+    #     "query": {
+    #         "function_score": {
+    #             "query": {
+    #                 "match": {"labels": keywords}
+    #             },
+    #             "functions": [
+    #                 {
+    #                     "random_score": {}
+    #                 }
+    #             ],
+    #             "score_mode": "sum"
+    #         }
+    #     }
+    # }
 
-    esaccount = ('ycc', 'YccWsq2024!')
+    # url = 'https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com/photos/_search'
+    # response = requests.get(url, auth=esaccount, json=query)
+    # data = json.loads(response.content.decode())
 
-    query = {
-        "query": {
-            "function_score": {
-                "query": {
-                    "match": {"labels": keywords}
-                },
-                "functions": [
-                    {
-                        "random_score": {}
-                    }
-                ],
-                "score_mode": "sum"
-            }
-        }
-    }
+    # print(data)
 
-    url = 'https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com/photos/_search'
-    response = requests.get(url, auth=esaccount, json=query)
-    data = json.loads(response.content.decode())
+    # es = Elasticsearch('https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com')
+    es = Elasticsearch(
+        ["https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com"],
+        http_auth=("ycc", "YccWsq2024!")
+    )
 
-    print(data)
+    s = Search(using=es, index="photos").query(
+        "bool",
+        must=(
+            [{"match": {"labels": keywordOne}}]
+            if keywordTwo is None
+            else [{"match": {"labels": keywordOne}}, {"match": {"labels": keywordTwo}}]
+        )
+    )
 
+    response = s.execute()
+
+    results = [hit for hit in response]
+
+    print(results)
 
     return {
         'statusCode': 200,
