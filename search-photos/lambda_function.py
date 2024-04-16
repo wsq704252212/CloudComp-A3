@@ -13,41 +13,14 @@ def lambda_handler(event, context):
         botName='PhotoSearch',
         botAlias='$LATEST',
         userId='default',
-        # inputText=json.loads(event['body'])['query']
-        inputText='Show me some pictures of cats'
+        inputText=event.get('queryStringParameters', {}).get('q')
     )
 
     print(response)
 
     keywordOne = response['slots']['KeywordOne']
     keywordTwo = response['slots']['KeywordTwo']
-    keywords = [keywordOne] if keywordTwo is None else [keywordOne, keywordTwo]
 
-    # esaccount = ('ycc', 'YccWsq2024!')
-
-    # query = {
-    #     "query": {
-    #         "function_score": {
-    #             "query": {
-    #                 "match": {"labels": keywords}
-    #             },
-    #             "functions": [
-    #                 {
-    #                     "random_score": {}
-    #                 }
-    #             ],
-    #             "score_mode": "sum"
-    #         }
-    #     }
-    # }
-
-    # url = 'https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com/photos/_search'
-    # response = requests.get(url, auth=esaccount, json=query)
-    # data = json.loads(response.content.decode())
-
-    # print(data)
-
-    # es = Elasticsearch('https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com')
     es = Elasticsearch(
         ["https://search-photos-vxlnrbcnhsji3zk6gcylzym3pa.us-east-1.es.amazonaws.com"],
         http_auth=("ycc", "YccWsq2024!")
@@ -61,12 +34,12 @@ def lambda_handler(event, context):
             else [{"match": {"labels": keywordOne}}, {"match": {"labels": keywordTwo}}]
         )
     )
+    # s = Search(using=es, index="photos").query("match_all")
 
     response = s.execute()
 
-    results = [hit for hit in response]
-
-    print(results)
+    photoName = response[0].objectKey
+    photoUrl = f"https://cirf-could-computing-photos.s3.amazonaws.com/{photoName}"
 
     return {
         'statusCode': 200,
@@ -74,6 +47,7 @@ def lambda_handler(event, context):
             'Access-Control-Allow-Origin': '*',
         },
         'body': json.dumps({
-            'keywords': keywords,
+            'photoUrl': photoUrl,
+            'photoName': photoName
         })
     }
