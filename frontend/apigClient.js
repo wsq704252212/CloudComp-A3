@@ -122,12 +122,12 @@ apigClientFactory.newClient = function (config) {
     apigClient.uploadFilenamePut = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         
-        apiGateway.core.utils.assertParametersDefined(params, ['filename'], ['body']);
+        apiGateway.core.utils.assertParametersDefined(params, ['filename', 'x-amz-meta-customlabels'], ['body']);
         
         var uploadFilenamePutRequest = {
             verb: 'put'.toUpperCase(),
-            path: pathComponent + uritemplate('/upload/{filename}').expand(apiGateway.core.utils.parseParametersToObject(params, ['filename'])),
-            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            path: pathComponent + uritemplate('/upload/{filename}').expand(apiGateway.core.utils.parseParametersToObject(params, ['filename', ])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, ['x-amz-meta-customlabels']),
             queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
             body: body
         };

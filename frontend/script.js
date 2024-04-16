@@ -39,13 +39,15 @@ function search(query) {
 function upload(photo, labels) {
     // console.log(photo)
     // var params = {
+    //     Metadata: {
+    //         'customLabels': labels
+    //     },
     //     'filename': photo.name
     // };
     // var body = photo;
     // var additionalParams = {
     //     headers: {
-    //         'Content-Type': photo.type,
-    //         'x-amz-meta-customLabels': labels
+    //         'Content-Type': photo.type
     //     }
     // };
 
@@ -60,7 +62,7 @@ function upload(photo, labels) {
     xhr = new XMLHttpRequest();
     xhr.open('PUT', 'https://h57p765qx6.execute-api.us-east-1.amazonaws.com/dev/upload/' + photo.name);
     xhr.setRequestHeader('Content-Type', photo.type);
-    xhr.setRequestHeader('x-amz-meta-customLabels', labels);
+    xhr.setRequestHeader('x-amz-meta-customlabels', labels);
     xhr.send(photo);
 }
 
